@@ -9,9 +9,10 @@ import { Category } from '../Category'
 interface ICategorySelectProps {
   categorySelected: string;
   setCategory: (categoryId: string) => void;
+  hasCheckBox?: boolean
 }
 
-export function CategorySelect({ categorySelected, setCategory }: ICategorySelectProps) {
+export function CategorySelect({ categorySelected, setCategory, hasCheckBox = false }: ICategorySelectProps) {
 
   return (
     <ScrollView
@@ -23,6 +24,7 @@ export function CategorySelect({ categorySelected, setCategory }: ICategorySelec
       {
         categories.map(category => (
           <Category key={category.id} title={category.title} icon={category.icon}
+            hasCheckBox={hasCheckBox}
             checked={category.id === categorySelected}
             onPress={() => setCategory(category.id)}
           />

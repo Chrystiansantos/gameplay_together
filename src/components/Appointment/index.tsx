@@ -35,6 +35,9 @@ export function Appointments({ data, ...rest }: IAppointmentsProps) {
   const [category] = categories.filter(item => item.id === data.category)
   const { owner } = data.guild;
   const { primary, on } = theme.colors;
+
+  
+
   return (
     <RectButton {...rest}>
       <View style={styles.container}>

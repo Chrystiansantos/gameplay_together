@@ -8,12 +8,23 @@ import { ListHeader } from '../../components/ListHeader'
 import { FlatList } from "react-native-gesture-handler";
 import { Appointments } from '../../components/Appointment'
 import { ListDivider } from '../../components/ListDivider'
+import { Background } from '../../components/Background'
+import { useNavigation } from '@react-navigation/native'
 
 export function Home() {
   const [category, setCategory] = useState<string>('')
 
+  const { navigate } = useNavigation();
+
   const handleCategorySelect = (categoryId: string) => {
     categoryId === category ? setCategory('') : setCategory(categoryId);
+  }
+
+  const handleAppointmentDetails = () => {
+    navigate('AppointmentDetails');
+  }
+  const handleCreateAppointment = () => {
+    navigate('AppointmentCreate')
   }
 
   const appointments = [
@@ -43,11 +54,12 @@ export function Home() {
     }
   ]
 
+
   return (
-    <View>
+    <Background>
       <View style={styles.header}>
         <Profile />
-        <ButtonAdd />
+        <ButtonAdd onPress={handleCreateAppointment} />
       </View>
       <View>
         <CategorySelect
@@ -64,10 +76,13 @@ export function Home() {
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <ListDivider />}
           renderItem={({ item }) => (
-            <Appointments data={item}></Appointments>
+            <Appointments
+              data={item}
+              onPress={handleAppointmentDetails}
+            ></Appointments>
           )}
         ></FlatList>
       </View>
-    </View >
+    </Background>
   )
 }

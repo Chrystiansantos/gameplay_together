@@ -456,3 +456,87 @@ Voce utiliza a FlatList quando tem muito elementos por ela ser mais performativa
   )}
 ></FlatList>
 ```
+
+## subir o conteudo da tela ao abrir o teclado
+
+1:32
+
+Primeiro passo irei fazer essas 3 importações.
+
+import { ScrollView, Plataform,KeyboardAvoidingView } from 'react-native'
+
+Irei colocar KeyboardAvoidingView, por volta de todo o meu componente, a seguir,
+Plataform consigo descobrir qual a plataforma se e ios ou android pois cada um possui um comportamento diferente
+Irei utilizar a ScrollView para ficar em volta do componente para ele fazer o escroll, sendo implementado da seguinte forma.
+
+```tsx
+import { ScrollView, Platform, KeyboardAvoidingView } from "react-native";
+
+<KeyboardAvoidingView
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+  style={styles.container}
+>
+  <ScrollView>
+    <View style={styles.form}>
+      <RectButton>
+        <View style={styles.select}>
+          <GuildIcon />
+          {/* <View style={styles.image} /> */}
+
+          <View style={styles.selectBody}>
+            <Text style={styles.label}>Selecione um servidor</Text>
+          </View>
+          <Feather
+            name="chevron-right"
+            color={theme.colors.heading}
+            size={18}
+          />
+        </View>
+      </RectButton>
+    </View>
+  </ScrollView>
+</KeyboardAvoidingView>;
+```
+
+As vezes acontece de ficar muito grudado no fim da tela, foi solucionado utilizando marginBottom.
+
+## Modal em RN
+
+Irei dentro de page, criar um arquivo que sera o meu modal, por exemplo Guilds.
+
+A seguir irei criar um componten que sera o meu modal, da seguinte forma.
+
+```tsx
+import React from "react";
+import { ReactNode } from "react";
+import { View, Modal, ModalProps } from "react-native";
+import { Background } from "../Background";
+import { styles } from "./styles";
+
+interface IModalViewProps extends ModalProps {
+  children: ReactNode;
+}
+
+export const ModalView = ({ children, ...rest }: IModalViewProps) => {
+  return (
+    <Modal transparent animationType="slide" {...rest}>
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <Background>
+            <View style={styles.bar} />
+            {children}
+          </Background>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+```
+
+Agora onde desejar chamar o meu modal irei chama-lo da seguinte forma:
+
+```tsx
+<ModalView visible={openGuildsModal}>
+  <Guilds />
+</ModalView>
+```
