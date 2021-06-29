@@ -22,15 +22,18 @@ export const Guilds = ({ handleGuildsSelected }: IGuildsProps) => {
       icon: null,
       owner: false
     }
-  ]
+  ];
+
   return (
     <View style={styles.container}>
       <FlatList
         data={guilds}
         keyExtractor={item => item.id}
-        ItemSeparatorComponent={() => <ListDivider />}
         showsVerticalScrollIndicator={false}
         style={styles.guilds}
+        contentContainerStyle={{ paddingBottom: 68, paddingTop: 103 }}
+        ItemSeparatorComponent={() => <ListDivider isCentered />}
+        ListHeaderComponent={() => <ListDivider isCentered />}
         renderItem={({ item }) => (
           <Guild
             onPress={() => handleGuildsSelected(item)}
