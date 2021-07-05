@@ -1,13 +1,27 @@
 import React from 'react'
-import { Image } from 'react-native'
+import { Image, View } from 'react-native'
+import { CDN_IMAGE } from '../../config'
+import DiscordSvg from '../../assets/discord.svg'
 
 import { styles } from './styles'
 
-export function GuildIcon() {
+interface IGuildIconProps {
+  guildId: string;
+  iconId: string | null;
+}
+
+export function GuildIcon({ guildId, iconId }: IGuildIconProps) {
+
+  const uri = `${CDN_IMAGE}/icons/${guildId}/${iconId}.png`
   return (
-    <Image source={{ uri: 'https://i.pinimg.com/originals/cd/3a/e3/cd3ae306e607763e3ba2eb9edf7df241.jpg' }}
-      style={styles.image}
-      resizeMode="cover"
-    />
+    <View style={styles.container}>
+      {
+        iconId ?
+          <Image source={{ uri }}
+            style={styles.image}
+            resizeMode="cover"
+          /> : <DiscordSvg width={40} height={40} />
+      }
+    </View>
   )
 }

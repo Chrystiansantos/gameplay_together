@@ -22,7 +22,7 @@ export const Guild = ({ data, ...rest }: IGuildProps) => {
       style={styles.container}
       activeOpacity={0.7}
       {...rest}>
-      <GuildIcon></GuildIcon>
+      <GuildIcon guildId={data.id} iconId={data.icon} />
       <View style={styles.content}>
         <View>
           <Text style={styles.title}>{data.name}</Text>

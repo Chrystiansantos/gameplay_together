@@ -31,20 +31,18 @@ export function Appointments({ data, ...rest }: IAppointmentsProps) {
   const { owner } = data.guild;
   const { secondary70, secondary50, primary, on } = theme.colors;
 
-
-
   return (
     <RectButton {...rest}>
       <View style={styles.container}>
         <LinearGradient
           style={styles.guildIconContainer}
           colors={[secondary50, secondary70]}>
-          <GuildIcon />
+          <GuildIcon iconId={data.guild.icon} guildId={data.guild.id} />
         </LinearGradient>
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>{data.guild.name}</Text>
-            <Text style={styles.category}>{category.title}</Text>
+            <Text style={styles.category}>{category?.title}</Text>
           </View>
           <View style={styles.footer}>
             <View style={styles.dateInfo}>

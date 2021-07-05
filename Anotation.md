@@ -459,8 +459,6 @@ Voce utiliza a FlatList quando tem muito elementos por ela ser mais performativa
 
 ## subir o conteudo da tela ao abrir o teclado
 
-1:32
-
 Primeiro passo irei fazer essas 3 importações.
 
 import { ScrollView, Plataform,KeyboardAvoidingView } from 'react-native'
@@ -539,4 +537,193 @@ Agora onde desejar chamar o meu modal irei chama-lo da seguinte forma:
 <ModalView visible={openGuildsModal}>
   <Guilds />
 </ModalView>
+```
+
+## Context API
+
+Primeiro passo irei criar uma pasta dentro de src chamada hooks, onde ficara salvo os meus contextos.
+
+Primeiro passo sera importar o React e createContext da seguinte forma. E em seguida cria-lo, passando um objeto vazio que consiste no valor inicial.
+
+```tsx
+import React, { createContext, ReactNode, useContext, useState } from "react";
+
+interface IUser {
+  id: string;
+  username: string;
+  firstName: string;
+  avatar: string;
+  email: string;
+  token: string;
+}
+
+interface IAuthContextData {
+  user: IUser;
+}
+
+interface IAuthProviderProps {
+  children: ReactNode;
+}
+
+const AuthContext = createContext({} as IAuthContextData);
+
+function AuthProvider({ children }: IAuthProviderProps) {
+  const [user, setUser] = useState<IUser>({} as IUser);
+
+  return (
+    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+  );
+}
+
+function useAuth() {
+  return useContext(AuthContext);
+}
+
+export { AuthProvider, useAuth };
+```
+
+Após criar meu contexto irei importa-lo onde for envolver ele, provavelmente nas rotas. e para utilizar os contexto irei apenas importar da seguinte maneira e usar o useAuth;
+
+```tsx
+import { useAuth } from "../../hooks/auth";
+
+const { user } = useAuth();
+console.log(user);
+```
+
+## Autenticação com OAuth2
+
+Primeiro passo preciso registrar meu app no servidor, podentro ele ser, google, facebook, discord e etc.
+
+No caso do discord iremos acessar discord.com/developers/applications
+
+- Irei fazer login:
+- Irei em aplication, new Aplication, dar um nome ao nosso app, e pronto criamos, agora posso configurar o icone descricao e pegar tbm as credenciais
+
+Primeiro precisarei fazer a instalação da seguinte lib para conseguir me autenticar com o seridor.
+
+❯ expo install expo-auth-session expo-random
+
+irei importar o AuthSession que acabei de instalar, dentro do meu context, irei criar uma função chamada signIn que sera responsavel por fazer o login no app.
+
+```tsx
+import * as AuthSession from "expo-auth-session";
+```
+
+Irei no meu servico de autenticação e irei criar uma variavel de redirecionamento, por exemplo no discord irei em OAuth2 redirect e irei criar uma url.
+
+Agora logo abaixo em OAuth2 Generator irei selecionar a minha URL, e irei informar quais informações desejo acessar do usuario autenticado.
+Ele ira gerar uma url, que sera a url que irei informar para o expo conseguir se conectar com o servidor.
+
+Irei criar uma pasta chamada config, e dentro dessa pasta irei extrair a informacao copiada da url acima nos seguintes campos:
+
+- REDIRECT_URI
+- SCOPE
+- RESPONSE_TYPE
+- CLIENT_ID
+- CDN_IMAGE
+
+REDIRECT_URI => redirect_uri
+SCOPE => scope
+RESPONSE_TYPE => 'token'
+CLIENT_ID => client_id
+CDN_IMAGE => 'https://cdn.discordapp.com'
+
+Agora irei instalar o axios para consumir as apis do discord, e irei usar a url que me foi informada no inicio da url, fornecida pelo discord, da seguinte forma:
+
+```ts
+import axios from "axios";
+export const api = axios.create({
+  baseURL: "https://discord.com/api",
+});
+```
+
+Dentro de app.json, irei criar um atributo chamado scheme, passando o nome do meu app da seguinte forma.
+
+"scheme": "gameplay",
+
+A seguir no meu metodo de SingIn vou chamar a seguinte função, e irei criar a seguinte interface para o retorno:
+
+```ts
+type IAuthorizationResponse = AuthSession.AuthSessionResult & {
+  params: {
+    access_token: string;
+  };
+};
+
+const authUrl = `${api.defaults.baseURL}/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
+const { params, type } = (await AuthSession.startAsync({
+  authUrl,
+})) as IAuthorizationResponse;
+```
+
+Apos caso nao tenha feito login no expo irei fazer login no app e irei usar a seguinte url no discord:
+
+https://auth.expo.io/@user_no_discord_deixar_@_aqui/nome_do_meu_app
+
+Nos meu arquivos de rotas irei fazer uma condicional para verificar se o usuario esta logado caso esteja irei redirecionar ele para as rotas logadas caso nao esteja irei mandar para Sign
+
+## Ignorando logs de warning no terminal
+
+Irei dentro do App.tsx irei importar o seguinte:
+
+```tsx
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["aqui dentro passo o inicio da frase informada no erro"]);
+```
+
+## Usando variaveis de ambiente
+
+Primeiro passo irei criar um arquivo .env na raiz do projeto onde irei salvar minhas variaveis de ambiente por exemplo:
+
+REDIRECT_URI = http://localhost:3000;
+
+apos preencher as variaveis nesse aquivo vou instalar a seguinte lib:
+
+```bash
+❯ yarn add dotenv babel-plugin-inline-dotenv
+```
+
+Apos instalar irei no babel config, e dentro do return irei adicionar a seguinte line:
+"plugins": ["inline-dotenv"]
+
+```js
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ["babel-preset-expo"],
+    plugins: ["inline-dotenv"],
+  };
+};
+```
+
+Nas minhas variaveis irei usar da seguinte forma:
+
+```ts
+export const REDIRECT_URI = process.env.REDIRECT_URI;
+```
+
+## Persistindo dados com async storage
+
+Primeiro passo irei instalar a seguinte lib:
+
+```bash
+❯ expo install @react-native-async-storage/async-storage
+```
+
+irei importa-lo:
+
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
+E irei executar a seguinte funcao para persistir os dados, passando no primeiro parametro o nome da coleção e em seguida o obj, lembrando que precisa transformar ele em uma string
+
+```tsx
+//Inserindo informação na database
+await AsyncStorage.setItem(COLLECTION_USERS, JSON.stringify(userData));
+
+//Buscando informacao na database
+const storage = await AsyncStorage.getItem(COLLECTION_USERS);
+if (storage) {
+  const userLogged = JSON.parse(storage) as IUser;
+}
 ```

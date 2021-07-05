@@ -8,7 +8,7 @@ import { styles } from './styles'
 
 export interface MemberProps {
   id: string,
-  userName: string;
+  username: string;
   avatar_url: string;
   status: string
 }
@@ -20,12 +20,13 @@ interface IMemberProps {
 export const Member = ({ data }: IMemberProps) => {
   const isOnline = data.status === 'online'
   const { on, primary } = theme.colors;
+  
   return (
     <View style={styles.container}>
       <Avatar urlImage={data.avatar_url}></Avatar>
       <View>
         <Text style={styles.title}>
-          {data.userName}
+          {data.username}
         </Text>
         <View style={styles.status}>
           <View

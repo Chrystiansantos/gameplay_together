@@ -12,8 +12,10 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     paddingHorizontal: 24,
+    paddingBottom: 10,
   },
   title: {
+    paddingTop: 6,
     fontSize: 28,
     fontFamily: theme.fonts.title700,
     color: theme.colors.heading,
